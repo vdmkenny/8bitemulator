@@ -21,7 +21,7 @@ im = PIL.ImageOps.invert(im)
 width, height = im.size
 
 # Open the output file
-newFile = open("charset.bin", "wb")
+newFile = open(OUTPUT_FILE, "wb")
 
 # Loop through the image, cropping 1 8x8 character at a time
 for y in range(int(height/8)):
