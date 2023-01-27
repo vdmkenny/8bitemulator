@@ -35,6 +35,7 @@ class MemoryMapper:
             return self.character_rom[address - 0xE000]
         else:
             return self.reserved_space[address - 0xF000]
+
     def write_byte(self, address, value):
         if address in self.read_only_sections.values():
             print("ERROR: Attempted to write to ROM!")
