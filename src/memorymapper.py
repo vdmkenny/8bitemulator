@@ -6,7 +6,7 @@ class MemoryMapper:
         self.ram = bytearray(0x4000)            # 16K (0x8000 - 0xBFFF)
         self.video_memory = bytearray(0x2000)   # 8K  (0xC000 - 0xDFFF)
         self.character_rom = bytearray(0x1000)  # 4K  (0xE000 - 0xEFFF)
-		self.reserved_space = bytearray(0x1000) # 4K  (0xF000 - 0xFFFF)
+	self.reserved_space = bytearray(0x1000) # 4K  (0xF000 - 0xFFFF)
         self.read_only_sections = {
             "program_rom": range(0x0000, 0x7FFF),
             "character_rom": range(0xE000, 0xEFFF)
