@@ -1,5 +1,7 @@
 from romloader import ROMLoader
 
+import random
+
 
 class MemoryMapper:
     def __init__(self):
@@ -21,8 +23,8 @@ class MemoryMapper:
         self.character_rom = character_rom_loader.load()
 
         # put some garbage in video ram for now, DELETE THIS LATER IN DEVELOPMENT
-        video_memory_loader = ROMLoader("../charset.bin", 0x2000)
-        self.video_memory = video_memory_loader.load()
+        for i in range(len(self.video_memory)):
+            self.video_memory[i] = random.randint(0x0001, 0x0016)
 
     def read_byte(self, address):
         if address < 0x8000:
