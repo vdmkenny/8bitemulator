@@ -1,33 +1,51 @@
+from memorymapper import MemoryMapper
+
 class Z80:
     def __init__(self):
-        self.A = 0x00
-        self.B = 0x00
-        self.C = 0x00
-        self.D = 0x00
-        self.E = 0x00
-        self.H = 0x00
-        self.L = 0x00
-        self.PC = 0x0000
-        self.SP = 0x0000
-        self.FLAG_Z = 0x00
-        self.FLAG_N = 0x00
-        self.FLAG_H = 0x00
-        self.FLAG_C = 0x00
-        self.memory = bytearray(0x10000)
+        self.registers = {
+            'A': 0x00, 
+            'B': 0x00, 
+			'C': 0x00,
+            'D': 0x00, 
+			'E': 0x00,
+            'H': 0x00, 
+			'L': 0x00,
+			'F': 0x00,
+			'I': 0x00,
+			'R': 0x00,
+            'SP': 0x0000, 
+            'PC': 0x0000, 
+			'IX': 0x0000,
+			'IY': 0x0000
+        }
+        self.flags = {
+			'C':   0,
+			'N':   0,
+			'P/V': 0,
+			'H':   0,
+			'Z':   0,
+			'S':   0
+        }
+        self.memory_mapper = MemoryMapper()
         self.OPCODES = {
-            0x00: (self.nop, 0),
-            0x01: (self.ld_bc_nn, 2),
-            0x02: (self.ld_bc_a, 0),
-            0x03: (self.inc_bc, 0),
-            0x05: (self.dec_b, 0),
-            0x06: (self.ld_b_n, 1),
-            0x21: (self.ld_hl_nn, 2),
-            0x22: (self.ld_nn_hl, 2),
-            0x2A: (self.ld_hl_nnp, 2),
-            0x0A: (self.ld_a_bc, 0),
-            0x1A: (self.ld_a_de, 0),
-            0x3A: (self.ld_a_nnp, 2)
-            # ...
+            0x00: (self.NOP, 0),
+            0x01: (self.LD_BC_d16, 2),
+            0x02: (self.LD_BC_A, 0),
+            0x03: (self.INC_BC, 0),
+            0x04: (self.INC_B, 0),
+            0x05: (self.DEC_B, 0),
+            0x06: (self.LD_B_d8, 1),
+          # 0x07: (self.RLCA, 0),
+          # 0x08: (self.LD_a16_SP, 2),
+          # 0x09: (self.ADD_HL_BC, 0),
+          # 0x0A: (self.LD_A_BC, 0),
+          # 0x0B: (self.DEC_BC, 0),
+          # 0x0C: (self.INC_C, 0),
+          # 0x0D: (self.DEC_C, 0),
+          # 0x0E: (self.LD_C_d8, 1),
+          # 0x0F: (self.RRCA, 0)
+
+			# TODO: Implement the rest
         }
 
     def decode(self, code):
@@ -51,27 +69,24 @@ class Z80:
                 pass
         return
 
-    def nop(self):
+    def NOP(self):
         pass
 
-    def ld_bc_nn(self, operand1, operand2):
-        self.BC = (operand1 << 8) | operand2
+    def LD_BC_d16(self, operand1, operand2):
+        self.registers['B'] = operand1
+        self.registers['C'] = operand2
 
-    def ld_bc_a(self):
-        self.BC = self.A
+    def LD_BC_A(self):
+        self.memory[self.registers['BC']] = self.registers['A']
 
-    def inc_bc(self):
-        self.BC += 1
+    def INC_BC(self):
+        self.registers['BC'] += 1
 
-    def dec_b(self):
-        self.B -= 1
+    def INC_B(self):
+        self.registers['B'] += 1
 
-    def ld_b_n(self, n):
-        self.B = n
+    def DEC_B(self):
+        self.registers['B'] -= 1
 
-    def ld_hl_nn(self, operand1, operand2):
-        self.HL = (operand1 << 8) | operand2
-
-    def ld_nn_hl(self, operand1, operand2):
-        addr = (operand1 << 8) | operand2
-        self.memory[addr] = self.HL
+    def LD_B_d8(self, operand):
+        self.registers['B'] = operand
