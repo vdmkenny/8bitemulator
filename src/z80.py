@@ -1,18 +1,18 @@
 class Z80:
     def __init__(self):
-        self.A = 0
-        self.B = 0
-        self.C = 0
-        self.D = 0
-        self.E = 0
-        self.H = 0
-        self.L = 0
-        self.PC = 0
-        self.SP = 0
-        self.FLAG_Z = 0
-        self.FLAG_N = 0
-        self.FLAG_H = 0
-        self.FLAG_C = 0
+        self.A = 0x00
+        self.B = 0x00
+        self.C = 0x00
+        self.D = 0x00
+        self.E = 0x00
+        self.H = 0x00
+        self.L = 0x00
+        self.PC = 0x0000
+        self.SP = 0x0000
+        self.FLAG_Z = 0x00
+        self.FLAG_N = 0x00
+        self.FLAG_H = 0x00
+        self.FLAG_C = 0x00
         self.memory = bytearray(0x10000)
         self.OPCODES = {
             0x00: (self.nop, 0),
