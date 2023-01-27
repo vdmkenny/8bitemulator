@@ -60,6 +60,7 @@ class Z80:
                 i += num_operands + 1
             else:
                 # Handle unknown opcode
+                print(f"ERROR: Encounteredunknown opcode: {hex(opcode)}")
                 pass
         return
 
