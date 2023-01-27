@@ -1,3 +1,5 @@
+from romloader import ROMloader
+
 class MemoryMapper:
     def __init__(self):
         self.program_rom = bytearray(0x8000)    # 32K (0x0000 - 0x7FFF)
@@ -9,6 +11,18 @@ class MemoryMapper:
             "program_rom": range(0x0000, 0x7FFF),
             "character_rom": range(0xE000, 0xEFFF)
         }
+
+        # Init the ROMs
+        program_rom_loader = ROMLoader('../program.bin', 0x8000)
+        self.program_rom = program_rom_loader.load()
+
+        character_rom_loader = ROMLoader('../charset.bin', 0x1000)
+        self.character_rom = character_rom_loader.load()
+
+        # put some garbage in video ram for now, DELETE THIS LATER IN DEVELOPMENT
+        video_memory_loader = ROMLoader('../charset.bin', 0x2000)
+        self.video_memory = video_memory_loader.load()
+
     def read_byte(self, address):
         if address < 0x8000:
             return self.program_rom[address]
