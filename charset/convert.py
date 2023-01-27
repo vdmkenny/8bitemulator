@@ -1,16 +1,16 @@
 from PIL import Image
 import PIL.ImageOps
 
-INPUT_FILE="charset.bmp"
-OUTPUT_FILE="charset.bin"
+INPUT_FILE = "charset.bmp"
+OUTPUT_FILE = "charset.bin"
 
 # Open the charset image
 im = Image.open(INPUT_FILE)
 
 # Check if image is 1-bit pallet
-if(int(im.mode)!=1):
-    print('This is not a 1-bit black and white file!')
-    print(f'Image mode for this file is: {im.mode}')
+if int(im.mode) != 1:
+    print("This is not a 1-bit black and white file!")
+    print(f"Image mode for this file is: {im.mode}")
     im.close()
     exit(1)
 
@@ -24,15 +24,17 @@ width, height = im.size
 newFile = open(OUTPUT_FILE, "wb")
 
 # Loop through the image, cropping 1 8x8 character at a time
-for y in range(int(height/8)):
-    for x in range(int(width/8)):
-        crop_tuple =((x*8), 
-                     (y*8), 
-                     (width-(width-(x*8)-8)), 
-                     (height-(height-(y*8)-8)))
+for y in range(int(height / 8)):
+    for x in range(int(width / 8)):
+        crop_tuple = (
+            (x * 8),
+            (y * 8),
+            (width - (width - (x * 8) - 8)),
+            (height - (height - (y * 8) - 8)),
+        )
         character = im.crop(crop_tuple)
         newFile.write(bytearray(character.tobytes()))
 
-print(f'Binary file written to {OUTPUT_FILE}')
+print(f"Binary file written to {OUTPUT_FILE}")
 
 im.close()
