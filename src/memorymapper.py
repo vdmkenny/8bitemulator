@@ -9,7 +9,7 @@ class MemoryMapper:
             "program_rom": range(0x0000, 0x7FFF),
             "character_rom": range(0xE000, 0xEFFF)
         }
-    def __getitem__(self, address):
+    def read_byte(self, address):
         if address < 0x8000:
             return self.program_rom[address]
         elif address < 0xC000:
@@ -20,7 +20,7 @@ class MemoryMapper:
             return self.character_rom[address - 0xE000]
 		else:
 			return self.reserved_space[address - 0xF000]
-    def __setitem__(self, address, value):
+    def write_byte(self, address, value):
         if address in self.read_only_sections.values():
 			print('ERROR: Attempted to write to ROM!')
             return

@@ -44,6 +44,7 @@ class Z80:
           # 0x0D: (self.DEC_C, 0),
           # 0x0E: (self.LD_C_d8, 1),
           # 0x0F: (self.RRCA, 0)
+            0x7E: (self.LD_A_HL, 0)
 
 			# TODO: Implement the rest
         }
@@ -90,3 +91,7 @@ class Z80:
 
     def LD_B_d8(self, operand):
         self.registers['B'] = operand
+
+    def LD_A_HL(self):
+        address = self.registers["HL"] # TODO: handle combined 2 byte registers
+        self.registers["A"] = self.memory_mapper.read_byte(address)
