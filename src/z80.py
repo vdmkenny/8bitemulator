@@ -38,8 +38,23 @@ class Z80:
             0x0D: (self.DEC_C, 0),
             0x0E: (self.LD_C_d8, 1),
             0x0F: (self.RRCA, 0),
+            0x10: (self.DJNZ, 1),
+            0x11: (self.LD_DE_d16, 2),
+            0x12: (self.LD_de_A, 0),
+            0x13: (self.INC_DE, 0),
+            0x14: (self.INC_D, 0),
+            0x15: (self.DEC_D, 0),
+            0x16: (self.LD_D_d8, 1),
+            0x18: (self.JR, 1),
+            0x19: (self.ADD_HL_DE, 0),
+            0x1A: (self.LD_A_DE, 0),
+            0x1B: (self.DEC_DE, 0),
+            0x1C: (self.INC_E, 0),
+            0x1D: (self.DEC_E, 0),
+            0x1E: (self.LD_E_d8, 1),
+            0x1F: (self.RRA, 0),
             0x7E: (self.LD_A_HL, 0)
-            # TODO: Implement the rest
+            # TODO: add the rest until 0xFF
         }
 
     def get_flag(self, flag):
@@ -113,7 +128,7 @@ class Z80:
                 i += num_operands + 1
             else:
                 # Handle unknown opcode
-                print(f"ERROR: Encounteredunknown opcode: {hex(opcode)}")
+                print(f"ERROR: Encountered unknown opcode: {hex(opcode)}")
                 pass
         return
 
@@ -174,6 +189,13 @@ class Z80:
         carry = self.get_flag("C")
         self.set_flag("C", self.A & 1)
         self.set_register("A", ((self.A >> 1) & 0xFF) | (carry << 7))
+
+    def DJNZ(self, D):
+        self.set_register(
+            "B", self.get_register("B") - 1
+        )  # register can't be negative?
+        if self.get_register("B") != 0:
+            self.set_register("PC", self.get_register("PC") + D)
 
     def LD_A_HL(self):
         self.set_register("A", self.get_register("HL") & 0xFF)
