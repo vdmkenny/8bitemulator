@@ -87,28 +87,32 @@ class Z80:
             self.registers[register] = value
 
     def increment_register(self, register):
-        if register in ("A", "B", "C", "D", "E", "H", "L"):
+        if register in ["A", "B", "C", "D", "E", "H", "L"]:
             value = self.get_register(register)
-            self.set_register(register, value + 1)
-        elif register in ("BC", "DE", "HL", "AF"):
-            high_register = register[0]
-            low_register = register[1]
+            result = (value + 1) & 0xFF
+            self.set_register(register, result)
+            self.set_flag("Z", result == 0)
+            self.set_flag("N", 0)
+            self.set_flag("H", (value & 0xF) + 1 > 0xF)
+        elif register in ["BC", "DE", "HL", "SP"]:
             value = self.get_register(register)
-            self.set_register(register, value + 1)
-            self.set_register(high_register, (value + 1) >> 8)
-            self.set_register(low_register, (value + 1) & 0xFF)
+            result = (value + 1) & 0xFFFF
+            self.set_register(register, result)
+        else:
+            raise ValueError(f"Invalid register: {register}")
 
     def decrement_register(self, register):
-        if register in ("A", "B", "C", "D", "E", "H", "L"):
-            value = self.get_register(register)
-            self.set_register(register, value - 1)
-        elif register in ("BC", "DE", "HL", "AF"):
-            high_register = register[0]
-            low_register = register[1]
-            value = self.get_register(register)
-            self.set_register(register, value - 1)
-            self.set_register(high_register, (value - 1) >> 8)
-            self.set_register(low_register, (value - 1) & 0xFF)
+        if register in ["A", "B", "C", "D", "E", "H", "L"]:
+            value = (self.get_register(register) - 1) & 0xFF
+            self.set_register(register, value)
+            self.set_flag("Z", value == 0)
+            self.set_flag("N", 1)
+            self.set_flag("H", (self.get_register(register) & 0xF) == 0xF)
+        elif register in ["BC", "DE", "HL", "SP"]:
+            value = (self.get_register(register) - 1) & 0xFFFF
+            self.set_register(register, value)
+        else:
+            raise ValueError(f"Invalid register: {register}")
 
     def decode(self, code):
         # Iterate over the code in 2-byte chunks
