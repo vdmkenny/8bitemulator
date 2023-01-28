@@ -40,7 +40,7 @@ class Z80:
             0x0F: (self.RRCA, 0),
             0x10: (self.DJNZ, 1),
             0x11: (self.LD_DE_d16, 2),
-            0x12: (self.LD_de_A, 0),
+            0x12: (self.LD_DE_A, 0),
             0x13: (self.INC_DE, 0),
             0x14: (self.INC_D, 0),
             0x15: (self.DEC_D, 0),
@@ -201,11 +201,60 @@ class Z80:
         self.set_register("A", ((self.A >> 1) & 0xFF) | (carry << 7))
 
     def DJNZ(self, D):
-        self.set_register(
-            "B", self.get_register("B") - 1
-        )  # register can't be negative?
+        self.set_register("B", self.get_register("B") - 1)
         if self.get_register("B") != 0:
             self.set_register("PC", self.get_register("PC") + D)
+
+    def LD_DE_d16(self, operand1, operand2):
+        self.set_register("DE", (operand2 << 8) | operand1)
+
+    def LD_DE_A(self):
+        self.memory_map.write_byte(self.get_register("DE"), self.get_register("A"))
+
+    def INC_DE(self):
+        self.increment_register("DE")
+
+    def INC_D(self):
+        self.increment_register("D")
+
+    def DEC_D(self):
+        self.decrement_register("D")
+
+    def LD_D_d8(self, operand):
+        self.set_register("D", operand)
+
+    def JR(self, operand):
+        pc = self.get_register("PC")
+        offset = operand if operand <= 0x7F else operand - 0x100
+        self.set_register("PC", pc + offset)
+
+    def ADD_HL_DE(self):
+        result = self.get_register("HL") + self.get_register("DE")
+        self.set_flag("H", (result & 0xFFF) < (self.get_register("HL") & 0xFFF))
+        self.set_flag("C", result > 0xFFFF)
+        self.set_register("HL", result & 0xFFFF)
+        self.set_flag("Z", False)
+        self.set_flag("N", False)
+
+    def LD_A_DE(self):
+        self.set_register("A", self.get_register("DE") & 0xFF)
+
+    def DEC_DE(self):
+        self.decrement_register("DE")
+
+    def INC_E(self):
+        self.increment_register("E")
+
+    def DEC_E(self):
+        self.decrement_register("E")
+
+    def LDE_E_d8(self, operand):
+        self.set_register("E", operand & 0xFF)
+
+    def RRA(self):
+        carry = self.get_flag("C")
+        self.set_flag("C", self.A & 1)
+        self.set_register("A", ((self.A >> 1) & 0xFF) | (carry << 7))
 
     def LD_A_HL(self):
         self.set_register("A", self.get_register("HL") & 0xFF)
