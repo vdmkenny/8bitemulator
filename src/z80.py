@@ -61,11 +61,13 @@ class Z80:
         if flag in self.flags:
             return self.flags[flag]
         else:
-            return 0x00
+            raise ValueError(f"Invalid flag: {register}")
 
     def set_flag(self, flag, value):
         if flag in self.flags:
             self.flags[flag] = value
+        else:
+            raise ValueError(f"Invalid flag: {register}")
 
     def get_register(self, register):
         if register == "AF":
@@ -76,15 +78,19 @@ class Z80:
             return (self.registers["D"] << 8) + self.registers["E"]
         elif register == "HL":
             return (self.registers["H"] << 8) + self.registers["L"]
-        else:
+        elif register in ["A", "B", "C", "D", "E", "H", "L"]:
             return self.registers[register]
+        else:
+            raise ValueError(f"Invalid register: {register}")
 
     def set_register(self, register, value):
         if register in ["AF", "BC", "DE", "HL"]:
             self.registers[register[0]] = value >> 8
             self.registers[register[1]] = value & 0xFF
-        else:
+        elif register in ["A", "B", "C", "D", "E", "H", "L"]:
             self.registers[register] = value
+        else:
+            raise ValueError(f"Invalid register: {register}")
 
     def increment_register(self, register):
         if register in ["A", "B", "C", "D", "E", "H", "L"]:
