@@ -29,18 +29,37 @@ class Z80:
             0x04: (self.INC_B, 0),
             0x05: (self.DEC_B, 0),
             0x06: (self.LD_B_d8, 1),
-            # 0x07: (self.RLCA, 0),
-            # 0x08: (self.LD_a16_SP, 2),
-            # 0x09: (self.ADD_HL_BC, 0),
-            # 0x0A: (self.LD_A_BC, 0),
-            # 0x0B: (self.DEC_BC, 0),
-            # 0x0C: (self.INC_C, 0),
-            # 0x0D: (self.DEC_C, 0),
-            # 0x0E: (self.LD_C_d8, 1),
-            # 0x0F: (self.RRCA, 0)
+            0x07: (self.RLCA, 0),
+            0x08: (self.LD_a16_SP, 2),
+            0x09: (self.ADD_HL_BC, 0),
+            0x0A: (self.LD_A_BC, 0),
+            0x0B: (self.DEC_BC, 0),
+            0x0C: (self.INC_C, 0),
+            0x0D: (self.DEC_C, 0),
+            0x0E: (self.LD_C_d8, 1),
+            0x0F: (self.RRCA, 0),
             0x7E: (self.LD_A_HL, 0)
             # TODO: Implement the rest
         }
+
+    def get_register(self, register):
+        if register == "AF":
+            return (self.registers["A"] << 8) + self.registers["F"]
+        elif register == "BC":
+            return (self.registers["B"] << 8) + self.registers["C"]
+        elif register == "DE":
+            return (self.registers["D"] << 8) + self.registers["E"]
+        elif register == "HL":
+            return (self.registers["H"] << 8) + self.registers["L"]
+        else:
+            return self.registers[register]
+
+    def set_register(self, register, value):
+        if register in ["AF", "BC", "DE", "HL"]:
+            self.registers[register[0]] = value >> 8
+            self.registers[register[1]] = value & 0xFF
+        else:
+            self.registers[register] = value
 
     def decode(self, code):
         # Iterate over the code in 2-byte chunks
