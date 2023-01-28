@@ -137,9 +137,7 @@ class Z80:
                 func(*operands)
                 i += num_operands + 1
             else:
-                # Handle unknown opcode
-                print(f"ERROR: Encountered unknown opcode: {hex(opcode)}")
-                pass
+                raise ValueError(f"Unknown opcode: {hex(opcode)}")
         return
 
     def NOP(self):
