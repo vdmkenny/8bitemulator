@@ -23,8 +23,37 @@ class MemoryMapper:
         self.character_rom = character_rom_loader.load()
 
         # put some garbage in video ram for now, DELETE THIS LATER IN DEVELOPMENT
-        for i in range(len(self.video_memory)):
-            self.video_memory[i] = random.randint(0x0001, 0x0016)
+        for i in range(0, len(self.video_memory), 2):
+            #            self.video_memory[i] = random.randint(0,20) * 8
+            #            self.video_memory[i+1] = random.randint(0,3)
+
+            self.video_memory[i] = 0x00
+            self.video_memory[i + 1] = 0x00
+
+        self.video_memory[0] = 0x40  # H
+        self.video_memory[1] = 0x01
+        self.video_memory[2] = 0x28  # E
+        self.video_memory[3] = 0x01
+        self.video_memory[4] = 0x60  # L
+        self.video_memory[5] = 0x01
+        self.video_memory[6] = 0x60  # L
+        self.video_memory[7] = 0x01
+        self.video_memory[8] = 0x78  # O
+        self.video_memory[9] = 0x01
+        self.video_memory[10] = 0x00  # space
+        self.video_memory[11] = 0x00
+        self.video_memory[12] = 0xB8  # W
+        self.video_memory[13] = 0x01
+        self.video_memory[14] = 0x78  # O
+        self.video_memory[15] = 0x01
+        self.video_memory[16] = 0x90  # R
+        self.video_memory[17] = 0x01
+        self.video_memory[18] = 0x60  # L
+        self.video_memory[19] = 0x01
+        self.video_memory[20] = 0x20  # D
+        self.video_memory[21] = 0x01
+        self.video_memory[22] = 0x08  # !
+        self.video_memory[23] = 0x00
 
     def read_byte(self, address):
         if address < 0x8000:

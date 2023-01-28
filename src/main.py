@@ -1,4 +1,5 @@
 import pygame
+import random
 
 import struct
 
@@ -28,19 +29,14 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
 
-        screen.fill((0, 0, 0))
-        # Draw the pixels to the screen
         for y in range(18):
             for x in range(20):
-                print(
-                    f"trying to fetch memory address {hex(video_memory_address + x * y)}"
-                )
 
                 low_byte = computer.memory_mapper.read_byte(
-                    video_memory_address + (x * y * 2)
+                    video_memory_address + (y * 18 * 2) + (x * 2)
                 )
                 high_byte = computer.memory_mapper.read_byte(
-                    video_memory_address + (x * y * 2) + 1
+                    video_memory_address + (y * 18 * 2) + (x * 2) + 1
                 )
 
                 result = low_byte + (high_byte << 8)
@@ -49,17 +45,20 @@ def main():
                 )
 
                 for char_y in range(8):
+                    row_value = computer.memory_mapper.read_byte(
+                        character_rom_address + char_offset + char_y
+                    )
+                    binary_string = format(row_value, "08b")
                     for char_x in range(8):
-                        row_value = computer.memory_mapper.read_byte(
-                            character_rom_address + char_offset + (char_x * char_y)
-                        )
-                        binary_string = bin(row_value)[2:].zfill(8)
-                        pixel_value = binary_string[char_x]
+                        pixel_value = int(binary_string[char_x])
                         if pixel_value == 0:
                             color = (0, 0, 0)
                         else:
                             color = (255, 255, 255)
-                        screen.set_at((char_x + (x * 8), char_y + (y * 8)), color)
+
+                        draw_x = x * 8 + char_x
+                        draw_y = y * 8 + char_y
+                        screen.set_at((draw_x, draw_y), color)
 
         # Update the display
         pygame.display.flip()
