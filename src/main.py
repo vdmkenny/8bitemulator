@@ -5,6 +5,12 @@ import struct
 
 from z80 import Z80
 
+def get_colors_from_byte(byte):
+    high_nibble = byte >> 4
+    low_nibble = byte & 0b00001111
+    high_color = (high_nibble >> 2, (high_nibble >> 1) & 1, high_nibble & 1)
+    low_color = (low_nibble >> 2, (low_nibble >> 1) & 1, low_nibble & 1)
+    return high_color, low_color
 
 def main():
     # Initialize Pygame

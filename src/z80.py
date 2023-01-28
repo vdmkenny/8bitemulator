@@ -42,6 +42,16 @@ class Z80:
             # TODO: Implement the rest
         }
 
+    def get_flag(self, flag):
+        if flag in self.flags:
+            return self.flags[flag]
+        else:
+            return 0x00
+
+    def set_flag(self, flag, value):
+        if flag in self.flags:
+            self.flags[flag] = value
+
     def get_register(self, register):
         if register == "AF":
             return (self.registers["A"] << 8) + self.registers["F"]
@@ -60,6 +70,30 @@ class Z80:
             self.registers[register[1]] = value & 0xFF
         else:
             self.registers[register] = value
+
+    def increment_register(self, register):
+        if register in ("A", "B", "C", "D", "E", "H", "L"):
+            value = self.get_register(register)
+            self.set_register(register, value + 1)
+        elif register in ("BC", "DE", "HL", "AF"):
+            high_register = register[0]
+            low_register = register[1]
+            value = self.get_register(register)
+            self.set_register(register, value + 1)
+            self.set_register(high_register, (value + 1) >> 8)
+            self.set_register(low_register, (value + 1) & 0xFF)
+
+    def decrement_register(self, register):
+        if register in ("A", "B", "C", "D", "E", "H", "L"):
+            value = self.get_register(register)
+            self.set_register(register, value - 1)
+        elif register in ("BC", "DE", "HL", "AF"):
+            high_register = register[0]
+            low_register = register[1]
+            value = self.get_register(register)
+            self.set_register(register, value - 1)
+            self.set_register(high_register, (value - 1) >> 8)
+            self.set_register(low_register, (value - 1) & 0xFF)
 
     def decode(self, code):
         # Iterate over the code in 2-byte chunks
@@ -87,24 +121,49 @@ class Z80:
         pass
 
     def LD_BC_d16(self, operand1, operand2):
-        self.registers["B"] = operand1
-        self.registers["C"] = operand2
+        self.set_register("BC", (operand2 << 8) | operand1)
 
     def LD_BC_A(self):
-        self.memory[self.registers["BC"]] = self.registers["A"]
+        self.set_register("BC", (0x00 << 8) | self.get_register("A"))
 
     def INC_BC(self):
-        self.registers["BC"] += 1
+        self.increment_register("BC")
 
     def INC_B(self):
-        self.registers["B"] += 1
+        self.increment_register("B")
 
     def DEC_B(self):
-        self.registers["B"] -= 1
+        self.decrement_register("B")
 
     def LD_B_d8(self, operand):
-        self.registers["B"] = operand
+        self.set_register("B", operand)
+
+    def RLCA(self):
+        carry = self.get_flag("C")
+        self.set_flag("C", (self.A >> 7) & 1)
+        self.set_register("A", ((self.A << 1) & 0xFF) | carry)
+
+    def LD_a16_SP(self, operand1, operand2):
+        address = (operand2 << 8) | operand1
+        self.memory_mapper.write_byte(address, self.get_register("SP"))
+
+    def ADD_HL_BC(self):
+        result = self.get_register("HL") + self.get_register("BC")
+        self.set_flag("H", (result & 0xFFF) < (self.get_register("HL") & 0xFFF))
+        self.set_flag("C", result > 0xFFFF)
+        self.set_register("HL", result & 0xFFFF)
+        self.set_flag("Z", False)
+        self.set_flag("N", False)
 
     def LD_A_HL(self):
         address = self.registers["HL"]  # TODO: handle combined 2 byte registers
         self.registers["A"] = self.memory_mapper.read_byte(address)
+
+
+#            0x0A: (self.LD_A_BC, 0),
+#            0x0B: (self.DEC_BC, 0),
+#            0x0C: (self.INC_C, 0),
+#            0x0D: (self.DEC_C, 0),
+#            0x0E: (self.LD_C_d8, 1),
+#            0x0F: (self.RRCA, 0),
+#            0x7E: (self.LD_A_HL, 0)
