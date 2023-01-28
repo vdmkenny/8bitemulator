@@ -155,15 +155,25 @@ class Z80:
         self.set_flag("Z", False)
         self.set_flag("N", False)
 
+    def LD_A_BC(self):
+        self.set_register("A", self.get_register("BC") & 0xFF)
+
+    def DEC_BC(self):
+        self.decrement_register("BC")
+
+    def INC_C(self):
+        self.increment_register("C")
+
+    def DEC_C(self):
+        self.decrement_register("C")
+
+    def LD_C_d8(self, operand):
+        self.set_register("C", operand)
+
+    def RRCA(self):
+        carry = self.get_flag("C")
+        self.set_flag("C", self.A & 1)
+        self.set_register("A", ((self.A >> 1) & 0xFF) | (carry << 7))
+
     def LD_A_HL(self):
-        address = self.registers["HL"]  # TODO: handle combined 2 byte registers
-        self.registers["A"] = self.memory_mapper.read_byte(address)
-
-
-#            0x0A: (self.LD_A_BC, 0),
-#            0x0B: (self.DEC_BC, 0),
-#            0x0C: (self.INC_C, 0),
-#            0x0D: (self.DEC_C, 0),
-#            0x0E: (self.LD_C_d8, 1),
-#            0x0F: (self.RRCA, 0),
-#            0x7E: (self.LD_A_HL, 0)
+        self.set_register("A", self.get_register("HL") & 0xFF)
