@@ -18,6 +18,14 @@ class Z80:
             "PC": 0x0000,
             "IX": 0x0000,
             "IY": 0x0000,
+            "Ap": 0x00,
+            "Bp": 0x00,
+            "Cp": 0x00,
+            "Dp": 0x00,
+            "Ep": 0x00,
+            "Hp": 0x00,
+            "Lp": 0x00,
+            "Fp": 0x00,
         }
         self.flags = {"C": 0, "N": 0, "P/V": 0, "H": 0, "Z": 0, "S": 0}
         self.memory_mapper = MemoryMapper()
@@ -30,7 +38,7 @@ class Z80:
             0x05: (self.DEC_B, 0),
             0x06: (self.LD_B_d8, 1),
             0x07: (self.RLCA, 0),
-            0x08: (self.LD_a16_SP, 2),
+            0x08: (self.EX_AF_AFp, 0),
             0x09: (self.ADD_HL_BC, 0),
             0x0A: (self.LD_A_BC, 0),
             0x0B: (self.DEC_BC, 0),
@@ -53,6 +61,22 @@ class Z80:
             0x1D: (self.DEC_E, 0),
             0x1E: (self.LD_E_d8, 1),
             0x1F: (self.RRA, 0),
+            0x20: (self.JR_NZ_d8, 1),
+            0x21: (self.LD_HL_d16, 2),
+            0x22: (self.LD_d16_HL, 2),
+            0x23: (self.INC_HL, 0),
+            0x24: (self.INC_H, 0),
+            0x25: (self.DEC_H, 0),
+            0x26: (self.LD_H_d8, 0),
+            0x27: (self.DAA, 0),
+            0x28: (self.JR_Z, 1),
+            0x29: (self.ADD_HL_HL, 0),
+            0x2A: (self.LD_HL_a16, 2),
+            0x2B: (self.DEC_HL, 0),
+            0x2C: (self.INC_L, 0),
+            0x2D: (self.DEC_L, 0),
+            0x2E: (self.LD_L_d8, 1),
+            0x2F: (self.CPL, 0),
             0x7E: (self.LD_A_HL, 0)
             # TODO: add the rest until 0xFF
         }
@@ -78,7 +102,30 @@ class Z80:
             return (self.registers["D"] << 8) + self.registers["E"]
         elif register == "HL":
             return (self.registers["H"] << 8) + self.registers["L"]
-        elif register in ["A", "B", "C", "D", "E", "H", "L"]:
+        elif register == "AFp":
+            return (self.registers["Ap"] << 8) + self.registers["Fp"]
+        elif register == "BCp":
+            return (self.registers["Bp"] << 8) + self.registers["Cp"]
+        elif register == "DEp":
+            return (self.registers["Dp"] << 8) + self.registers["Ep"]
+        elif register == "HLp":
+            return (self.registers["Hp"] << 8) + self.registers["Lp"]
+        elif register in [
+            "A",
+            "B",
+            "C",
+            "D",
+            "E",
+            "H",
+            "L",
+            "Ap",
+            "Bp",
+            "Cp",
+            "Dp",
+            "Ep",
+            "Hp",
+            "Lp",
+        ]:
             return self.registers[register]
         else:
             raise ValueError(f"Invalid register: {register}")
@@ -87,7 +134,25 @@ class Z80:
         if register in ["AF", "BC", "DE", "HL"]:
             self.registers[register[0]] = value >> 8
             self.registers[register[1]] = value & 0xFF
-        elif register in ["A", "B", "C", "D", "E", "H", "L"]:
+        elif register in ["AFp", "BCp", "DEp", "HLp"]:
+            self.registers[register[0] + "p"] = value >> 8
+            self.registers[register[1] + "p"] = value & 0xFF
+        elif register in [
+            "A",
+            "B",
+            "C",
+            "D",
+            "E",
+            "H",
+            "L",
+            "Ap",
+            "Bp",
+            "Cp",
+            "Dp",
+            "Ep",
+            "Hp",
+            "Lp",
+        ]:
             self.registers[register] = value
         else:
             raise ValueError(f"Invalid register: {register}")
@@ -166,9 +231,10 @@ class Z80:
         self.set_flag("C", (self.A >> 7) & 1)
         self.set_register("A", ((self.A << 1) & 0xFF) | carry)
 
-    def LD_a16_SP(self, operand1, operand2):
-        address = (operand2 << 8) | operand1
-        self.memory_mapper.write_byte(address, self.get_register("SP"))
+    def EX_AF_AFp(self):
+        temp = self.get_register["AFp"]
+        self.set_register["AFp"] = self.get_register["AF"]
+        self.set_register["AF"] = temp
 
     def ADD_HL_BC(self):
         result = self.get_register("HL") + self.get_register("BC")
@@ -253,6 +319,14 @@ class Z80:
         carry = self.get_flag("C")
         self.set_flag("C", self.A & 1)
         self.set_register("A", ((self.A >> 1) & 0xFF) | (carry << 7))
+
+    def JR_NZ_d8(self, operand):
+        if not self.get_flag("Z"):
+            pc = self.get_register("PC")
+            self.set_register("PC", (pc + operand) & 0xFFFF)
+
+    def LD_HL_d16(self, operand1, operand2):
+        self.set_register("HL", (operand2 << 8) | operand1)
 
     def LD_A_HL(self):
         self.set_register("A", self.get_register("HL") & 0xFF)
