@@ -328,7 +328,7 @@ class Z80:
     def DEC_E(self):
         self.decrement_register("E")
 
-    def LDE_E_d8(self, operand):
+    def LD_E_d8(self, operand):
         self.set_register("E", operand & 0xFF)
 
     def RRA(self):
