@@ -328,5 +328,96 @@ class Z80:
     def LD_HL_d16(self, operand1, operand2):
         self.set_register("HL", (operand2 << 8) | operand1)
 
+    def LD_d16_HL(self, operand1, operand2):
+        address = (operand1 << 8) + operand2
+        value = self.get_register("HL")
+        self.memory_mapper.write_byte(address, value & 0xFF)
+        self.memory_mapper.write_byte(address + 1, value >> 8)
+
+    def INC_HL(self):
+        self.increment_register("HL")
+
+    def INC_H(self):
+        self.increment_register("H")
+
+    def DEC_H(self):
+        self.decrement_register("H")
+
+    def LD_H_d8(self, operand):
+        self.set_register("H", operand & 0xFF)
+
+    def DAA(self):
+        a = self.get_register("A")
+        c = self.get_flag("C")
+        h = self.get_flag("H")
+
+        if (a & 0x0F) > 9 or h:
+            a += 0x06
+        if (a & 0xF0) > 0x90 or c:
+            a += 0x60
+            c = True
+        else:
+            c = False
+
+        self.set_register("A", a)
+        self.set_flag("C", c)
+        self.set_flag("H", False)
+        self.set_flag("N", False)
+        self.set_flag("Z", a == 0)
+        self.set_flag("P", False)
+        self.set_flag("S", False)
+
+    def JR_Z(self, operand):
+        if self.get_flag("Z"):
+            self.set_register("PC", self.get_register("PC") + operand)
+
+    def ADD_HL_HL(self):
+        result = get_register(self, "HL") + get_register(self, "HL")
+        set_register(self, "HL", result)
+
+        # Set carry flag if result is greater than 0xFFFF
+        if result > 0xFFFF:
+            set_flag(self, "C", 1)
+        else:
+            set_flag(self, "C", 0)
+
+        # Reset N flag
+        set_flag(self, "N", 0)
+
+        # Set H flag if carry from bit 11
+        if (result & 0x0FFF) > 0x0FFF:
+            set_flag(self, "H", 1)
+        else:
+            set_flag(self, "H", 0)
+
+        # Reset other flags
+        set_flag(self, "Z", 0)
+        set_flag(self, "S", 0)
+        set_flag(self, "P/V", 0)
+
+    def LD_HL_a16(self, operand1, operand2):
+        address = (operand2 << 8) + operand1
+        value = self.memory_mapper.read_byte(address)
+        self.set_register("L", value & 0xFF)
+        value = self.memory_mapper.read_byte(address + 1)
+        self.set_register("H", value & 0xFF)
+
+    def DEC_HL(self):
+        self.decrement_register("HL")
+
+    def INC_L(self):
+        self.increment_register("L")
+
+    def DEC_L(self):
+        self.decrement_register("L")
+
+    def LD_L_d8(self, operand):
+        self.set_register("L", operand & 0xFF)
+
+    def CPL(self):
+        self.registers["A"] = ~self.registers["A"] & 0xFF
+        self.set_flag("N", 1)
+        self.set_flag("H", 1)
+
     def LD_A_HL(self):
         self.set_register("A", self.get_register("HL") & 0xFF)
