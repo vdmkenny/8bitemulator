@@ -77,6 +77,22 @@ class Z80:
             0x2D: (self.DEC_L, 0),
             0x2E: (self.LD_L_d8, 1),
             0x2F: (self.CPL, 0),
+            0x30: (self.JR_NC, 2),
+            0x31: (self.LD_SP_d16, 2),
+            0x32: (self.LD_a16_A, 2),
+            0x33: (self.INC_SP, 0),
+            0x34: (self.INC_HL, 0),
+            0x35: (self.DEC_HL, 0),
+            0x36: (self.LD_HL_d8, 1),
+            0x37: (self.SCF, 0),
+            0x38: (self.JR_C, 2),
+            0x39: (self.ADD_HL_SP, 0),
+            0x3A: (self.LD_A_a16, 2),
+            0x3B: (self.DEC_SP, 0),
+            0x3C: (self.INC_A, 0),
+            0x3D: (self.DEC_A, 0),
+            0x3E: (self.LD_A_d8, 1),
+            0x3F: (self.CCF, 0),
             0x7E: (self.LD_A_HL, 0)
             # TODO: add the rest until 0xFF
         }
