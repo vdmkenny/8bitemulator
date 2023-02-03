@@ -77,7 +77,7 @@ class Z80:
             0x2D: (self.DEC_L, 0),
             0x2E: (self.LD_L_d8, 1),
             0x2F: (self.CPL, 0),
-            0x30: (self.JR_NC, 2),
+            0x30: (self.JR_NC, 1),
             0x31: (self.LD_SP_d16, 2),
             0x32: (self.LD_a16_A, 2),
             0x33: (self.INC_SP, 0),
@@ -200,6 +200,14 @@ class Z80:
             self.set_register(register, value)
         else:
             raise ValueError(f"Invalid register: {register}")
+
+    def increment_memory(self, address):
+        value = self.memory_mapper.read_byte(address)
+        self.memory_mapper.write_byte(address, (value + 1) & 0xff)
+
+    def decrement_memory(self, address):
+        value = self.memory_mapper.read_byte(address)
+        self.memory_mapper.write_byte(address, (value - 1) & 0xff)
 
     def decode(self, code):
         # Iterate over the code in 2-byte chunks
@@ -434,6 +442,19 @@ class Z80:
         self.registers["A"] = ~self.registers["A"] & 0xFF
         self.set_flag("N", 1)
         self.set_flag("H", 1)
+
+    def JR_NC(self, operand):
+        if not self.get_flag('C'):
+            pc = self.get_register('PC')
+            self.set_register('PC', pc + sign(operand))
+
+    def LD_SP_d16(self, operand1, operand2):
+        self.set_register("SP", (operand2 << 8) | operand1)
+
+    def LD_a16_A(self, operand1, operand2):
+        address = (operand2 << 8) | operand1
+        self.memory_mapper.write_byte(address, self.get_register("A"))
+
 
     def LD_A_HL(self):
         self.set_register("A", self.get_register("HL") & 0xFF)
