@@ -203,11 +203,11 @@ class Z80:
 
     def increment_memory(self, address):
         value = self.memory_mapper.read_byte(address)
-        self.memory_mapper.write_byte(address, (value + 1) & 0xff)
+        self.memory_mapper.write_byte(address, (value + 1) & 0xFF)
 
     def decrement_memory(self, address):
         value = self.memory_mapper.read_byte(address)
-        self.memory_mapper.write_byte(address, (value - 1) & 0xff)
+        self.memory_mapper.write_byte(address, (value - 1) & 0xFF)
 
     def decode(self, code):
         # Iterate over the code in 2-byte chunks
@@ -444,9 +444,9 @@ class Z80:
         self.set_flag("H", 1)
 
     def JR_NC(self, operand):
-        if not self.get_flag('C'):
-            pc = self.get_register('PC')
-            self.set_register('PC', pc + sign(operand))
+        if not self.get_flag("C"):
+            pc = self.get_register("PC")
+            self.set_register("PC", pc + sign(operand))
 
     def LD_SP_d16(self, operand1, operand2):
         self.set_register("SP", (operand2 << 8) | operand1)
