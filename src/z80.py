@@ -105,7 +105,7 @@ class Z80:
 
     def set_flag(self, flag, value):
         if flag in self.flags:
-            self.flags[flag] = value
+            self.flags[flag] = value & 1
         else:
             raise ValueError(f"Invalid flag: {register}")
 
@@ -396,28 +396,28 @@ class Z80:
             self.set_register("PC", self.get_register("PC") + operand)
 
     def ADD_HL_HL(self):
-        result = get_register(self, "HL") + get_register(self, "HL")
-        set_register(self, "HL", result)
+        result = self.get_register("HL") + self.get_register("HL")
+        self.set_register("HL", result & 0xFFFF)
 
         # Set carry flag if result is greater than 0xFFFF
         if result > 0xFFFF:
-            set_flag(self, "C", 1)
+            self.set_flag("C", 1)
         else:
-            set_flag(self, "C", 0)
+            self.set_flag("C", 0)
 
         # Reset N flag
-        set_flag(self, "N", 0)
+        self.set_flag("N", 0)
 
         # Set H flag if carry from bit 11
         if (result & 0x0FFF) > 0x0FFF:
-            set_flag(self, "H", 1)
+            self.set_flag("H", 1)
         else:
-            set_flag(self, "H", 0)
+            self.set_flag("H", 0)
 
         # Reset other flags
-        set_flag(self, "Z", 0)
-        set_flag(self, "S", 0)
-        set_flag(self, "P/V", 0)
+        self.set_flag("Z", 0)
+        self.set_flag("S", 0)
+        self.set_flag("P/V", 0)
 
     def LD_HL_a16(self, operand1, operand2):
         address = (operand2 << 8) + operand1
@@ -455,6 +455,81 @@ class Z80:
         address = (operand2 << 8) | operand1
         self.memory_mapper.write_byte(address, self.get_register("A"))
 
+    def INC_SP(self):
+        self.increment_register("SP")
+
+    def INC_HL_MEM(self):
+        hl = self.get_register("HL")
+        value = self.memory_mapper.read_byte(hl)
+        result = self.increment_memory(hl)
+        self.set_flag("Z", result == 0)
+        self.set_flag("N", False)
+        self.set_flag("H", (value & 0x0F) == 0x0F)
+
+    def DEC_HL_MEM(self):
+        hl = self.get_register("HL")
+        value = self.memory_mapper.read_byte(hl)
+        result = self.decrement_memory(hl)
+        self.set_flag("Z", result == 0)
+        self.set_flag("N", False)
+        self.set_flag("H", (value & 0x0F) == 0x0F)
+
+    def LD_HL_MEM_d8(self, operand):
+        hl = self.get_register("HL")
+        self.memory_mapper.write_byte(hl, operand)
+
+    def SCF(self):
+        self.set_flag("C", True)
+
+    def JR_C(self, operand):
+        if self.get_flag("C"):
+            self.jump_relative(operand)
+
+    def ADD_HL_SP(self):
+        result = self.get_register("HL") + self.get_register("SP")
+        self.set_register("HL", result & 0xFFFF)
+
+        # Set carry flag if result is greater than 0xFFFF
+        if result > 0xFFFF:
+            self.set_flag("C", 1)
+        else:
+            self.set_flag("C", 0)
+
+        # Reset N flag
+        self.set_flag("N", 0)
+
+        # Set H flag if carry from bit 11
+        if (result & 0x0FFF) > 0x0FFF:
+            self.set_flag("H", 1)
+        else:
+            self.set_flag("H", 0)
+
+        # Reset other flags
+        self.set_flag("Z", 0)
+        self.set_flag("S", 0)
+        self.set_flag("P/V", 0)
+
+    def LD_A_a16(self, operand1, operand2):
+        address = (operand2 << 8) | operand1
+        value = self.memory_mapper.read_byte(address) & 0xFF
+        self.set_register("A", value)
+
+    def DEC_SP(self):
+        self.deccrement_register("SP")
+
+    def INC_A(self):
+        self.increment_register("A")
+
+    def DEC_A(self):
+        self.decrement_register("A")
+
+    def LD_A_d8(self, operand):
+        self.set_register("A", operand & 0xFF)
+
+    def CCF(self):
+        self.set_flag("C", ~self.get_flag("C"))
+        self.set_flag("N", 0)
+        self.set_flag("H", 0)
 
     def LD_A_HL(self):
         self.set_register("A", self.get_register("HL") & 0xFF)
