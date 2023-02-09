@@ -109,6 +109,22 @@ class Z80:
             0x4D: (self.LD_C_L, 0),
             0x4E: (self.LD_C_HL_MEM, 0),
             0x4F: (self.LD_C_A, 0),
+            0x50: (self.LD_D_B, 0),
+            0x51: (self.LD_D_C, 0),
+            0x52: (self.LD_D_D, 0),
+            0x53: (self.LD_D_E, 0),
+            0x54: (self.LD_D_H, 0),
+            0x55: (self.LD_D_L, 0),
+            0x56: (self.LD_D_HL_MEM, 0),
+            0x57: (self.LD_D_A, 0),
+            0x58: (self.LD_E_B, 0),
+            0x59: (self.LD_E_C, 0),
+            0x5A: (self.LD_E_D, 0),
+            0x5B: (self.LD_E_E, 0),
+            0x5C: (self.LD_E_H, 0),
+            0x5D: (self.LD_E_L, 0),
+            0x5E: (self.LD_E_HL_MEM, 0),
+            0x5F: (self.LD_E_A, 0),
             0x7E: (self.LD_A_HL, 0)
             # TODO: add the rest until 0xFF
         }
