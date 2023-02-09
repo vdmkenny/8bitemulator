@@ -547,5 +547,71 @@ class Z80:
         self.set_flag("N", 0)
         self.set_flag("H", 0)
 
+    def LD_B_B(self):
+        value = self.get_register("B")
+        self.set_register("B", value)
+
+    def LD_B_C(self):
+        value = self.get_register("C")
+        self.set_register("B", value)
+
+    def LD_B_D(self):
+        value = self.get_register("D")
+        self.set_register("B", value)
+
+    def LD_B_E(self):
+        value = self.get_register("E")
+        self.set_register("B", value)
+
+    def LD_B_H(self):
+        value = self.get_register("H")
+        self.set_register("B", value)
+
+    def LD_B_L(self):
+        value = self.get_register("L")
+        self.set_register("B", value)
+
+    def LD_B_HL_MEM(self):
+        hl = self.get_register("HL")
+        value = self.memory_mapper.read_byte(hl)
+        self.set_register("B", value)
+
+    def LD_B_A(self):
+        value = self.get_register("A")
+        self.set_register("B", value)
+
+    def LD_C_B(self):
+        value = self.get_register("B")
+        self.set_register("C", value)
+
+    def LD_C_C(self):
+        value = self.get_register("C")
+        self.set_register("C", value)
+
+    def LD_C_D(self):
+        value = self.get_register("D")
+        self.set_register("C", value)
+
+    def LD_C_E(self):
+        value = self.get_register("E")
+        self.set_register("C", value)
+
+    def LD_C_H(self):
+        value = self.get_register("H")
+        self.set_register("C", value)
+
+    def LD_C_L(self):
+        value = self.get_register("L")
+        self.set_register("C", value)
+
+    def LD_C_HL_MEM(self):
+        hl = self.get_register("HL")
+        value = self.memory_mapper.read_byte(hl)
+        self.set_register("C", value)
+
+    def LD_C_A(self):
+        value = self.get_register("A")
+        self.set_register("C", value)
+
     def LD_A_HL(self):
         self.set_register("A", self.get_register("HL") & 0xFF)
