@@ -141,7 +141,22 @@ class Z80:
             0x6D: (self.LD_L_L, 0),
             0x6E: (self.LD_L_HL_MEM, 0),
             0x6F: (self.LD_L_A, 0),
-            0x7E: (self.LD_A_HL, 0)
+            0x70: (self.LD_HL_MEM_B, 0),
+            0x71: (self.LD_HL_MEM_C, 0),
+            0x72: (self.LD_HL_MEM_D, 0),
+            0x73: (self.LD_HL_MEM_E, 0),
+            0x74: (self.LD_HL_MEM_H, 0),
+            0x75: (self.LD_HL_MEM_L, 0),
+            0x76: (self.HALT, 0),
+            0x77: (self.LD_HL_MEM_A, 0),
+            0x78: (self.LD_A_B, 0),
+            0x79: (self.LD_A_C, 0),
+            0x7A: (self.LD_A_D, 0),
+            0x7B: (self.LD_A_E, 0),
+            0x7C: (self.LD_A_H, 0),
+            0x7D: (self.LD_A_L, 0),
+            0x7E: (self.LD_A_HL_MEM, 0),
+            0x7F: (self.LD_A_A, 0),
             # TODO: add the rest until 0xFF
         }
 
@@ -777,5 +792,5 @@ class Z80:
         value = self.get_register("A")
         self.set_register("L", value)
 
-    def LD_A_HL(self):
-        self.set_register("A", self.get_register("HL") & 0xFF)
+    def LD_A_HL_MEM(self):
+        self.set_register("A", self.get_register("HL") & 0xFF)  # TODO: check this one
