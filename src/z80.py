@@ -157,6 +157,22 @@ class Z80:
             0x7D: (self.LD_A_L, 0),
             0x7E: (self.LD_A_HL_MEM, 0),
             0x7F: (self.LD_A_A, 0),
+            0x80: (self.ADD_A_B, 0),
+            0x81: (self.ADD_A_C, 0),
+            0x82: (self.ADD_A_D, 0),
+            0x83: (self.ADD_A_E, 0),
+            0x84: (self.ADD_A_H, 0),
+            0x85: (self.ADD_A_L, 0),
+            0x86: (self.ADD_A_HL_MEM, 0),
+            0x87: (self.ADD_A_A, 0),
+            0x88: (self.ADC_A_B, 0),
+            0x89: (self.ADC_A_C, 0),
+            0x8A: (self.ADC_A_D, 0),
+            0x8B: (self.ADC_A_E, 0),
+            0x8C: (self.ADC_A_H, 0),
+            0x8D: (self.ADC_A_L, 0),
+            0x8E: (self.ADC_A_HL_MEM, 0),
+            0x8F: (self.ADC_A_A, 0),
             # TODO: add the rest until 0xFF
         }
 
@@ -792,5 +808,64 @@ class Z80:
         value = self.get_register("A")
         self.set_register("L", value)
 
-    def LD_A_HL_MEM(self):
-        self.set_register("A", self.get_register("HL") & 0xFF)  # TODO: check this one
+    def LD_HL_MEM_B(self):
+        addr = self.get_register("HL")
+        value = self.get_register("B")
+        self.memory_mapper.write_byte(addr, value)
+
+    def LD_HL_MEM_C(self):
+        address = self.get_register("HL")
+        value = self.get_register("C")
+        self.memory_mapper.write_byte(address, value)
+
+    def LD_HL_MEM_D(self):
+        address = self.get_register("HL")
+        value = self.get_register("D")
+        self.memory_mapper.write_byte(address, value)
+
+    def LD_HL_MEM_E(self):
+        address = self.get_register("HL")
+        value = self.get_register("E")
+        self.memory_mapper.write_byte(address, value)
+
+    def LD_HL_MEM_H(self):
+        address = self.get_register("HL")
+        value = self.get_register("H")
+        self.memory_mapper.write_byte(address, value)
+
+    def LD_HL_MEM_L(self):
+        address = self.get_register("HL")
+        value = self.get_register("L")
+        self.memory_mapper.write_byte(address, value)
+
+    def HALT(self):
+        print("#TODO: implement this and interrupts")
+
+    def LD_HL_MEM_A(self):
+        address = self.get_register("HL")
+        value = self.get_register("A")
+        self.memory_mapper.write_byte(address, value)
+
+    def LD_A_B(self):
+        self.set_register("A", self.get_register("B"))
+
+    def LD_A_C(self):
+        self.set_register("A", self.get_register("C"))
+
+    def LD_A_D(self):
+        self.set_register("A", self.get_register("D"))
+
+    def LD_A_E(self):
+        self.set_register("A", self.get_register("E"))
+
+    def LD_A_H(self):
+        self.set_register("A", self.get_register("H"))
+
+    def LD_A_L(self):
+        self.set_register("A", self.get_register("L"))
+
+    def LD_A_MEM_HL(self):
+        self.set_register("A", self.memory_mapper.read_byte(self.get_register("HL")))
+
+    def LD_A_A(self):
+        self.set_register("A", self.get_register("A"))
