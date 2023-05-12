@@ -1,5 +1,9 @@
-# 8 bit computer emulator
-
+<div>
+  <img src="logo.png" width="100" height="100" align="left">
+  <br>
+  <h1>8 bit computer emulator</h1> 
+</div>
+<br>
 A experiment into creating a virtual 8 bit computer written in python, aided in implementation by chatGPT.
 
 ## (Planned) Specifications
