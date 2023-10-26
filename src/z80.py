@@ -6,8 +6,9 @@ import time
 
 class Z80:
     def __init__(self, speed=100):
-        self.cycles = 0
-        self.speed = speed
+        self.cycles = 0 # Quota of cycles to run
+        self.halted = False # If in HALT state
+        self.speed = speed # CPU speed in Hz
         self.timer_thread = threading.Thread(target=self.timer_loop)
         self.timer_thread.daemon = True
         self.timer_thread.start()
@@ -19,8 +20,9 @@ class Z80:
             self.timer_tick()
 
     def timer_tick(self):
-        self.cycles += 1
-        pass
+        if not self.halted:
+            self.cycles += 1
+            pass
 
         self.registers = {
             "A": 0x00,
