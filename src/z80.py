@@ -33,8 +33,8 @@ class Z80:
             "F": 0x00,
             "I": 0x00,
             "R": 0x00,
-            "SP": 0x0000,
-            "PC": 0x0000,
+            "SP": 0x0000, # Stack Pointer
+            "PC": 0x0000, # Program Counter
             "IX": 0x0000,
             "IY": 0x0000,
             "Ap": 0x00,
@@ -46,7 +46,14 @@ class Z80:
             "Lp": 0x00,
             "Fp": 0x00,
         }
-        self.flags = {"C": 0, "N": 0, "P/V": 0, "H": 0, "Z": 0, "S": 0}
+        self.flags = {
+            "S": 0    # Sign Flag
+            "Z": 0,   # Zero Flag
+            "H": 0,   # Half Carry Flag
+            "P/V": 0, # Parity/Overflow Flag
+            "C": 0,   # Carry Flag 
+            "N": 0,   # Add/Sub Flag 
+            }
         self.memory_mapper = MemoryMapper()
         self.OPCODES = {
             0x00: (self.NOP),
@@ -1000,7 +1007,6 @@ class Z80:
             value = self.get_register(operand)
             result = (value - 1) & 0xFF
             self.set_register(operand, result)
-            self.set_flag("Z", result == 0)
             self.set_flag("N", True)
             self.set_flag("H", (value & 0x0F) == 0x00)
             self.set_flag("P/V", value == 0x80)
@@ -1024,11 +1030,15 @@ class Z80:
             self.consume_cycles(6)
         else:
             raise ValueError(f"Invalid operand: {operand}")
+    
+
 
     def RLCA(self):
         carry = self.get_flag("C")
         self.set_flag("C", (self.A >> 7) & 1)
         self.set_register("A", ((self.A << 1) & 0xFF) | carry)
+        self.set_flag("N", False)
+        self.set_flag("H", False)
         self.consume_cycles(4)
 
     def EX(self, operand1, operand2):
@@ -1114,6 +1124,8 @@ class Z80:
         carry = self.get_flag("C")
         self.set_flag("C", self.A & 1)
         self.set_register("A", ((self.A >> 1) & 0xFF) | (carry << 7))
+        self.set_flag("N", False)
+        self.set_flag("H", False)
         self.consume_cycles(4)
 
     def DJNZ(self, D):
@@ -1124,44 +1136,22 @@ class Z80:
         else:
             self.consume_cycles(8)
 
+    def RLA(self):
+        carry = self.get_flag("C")
+        self.set_flag("C", self.A >> 7)
+        self.set_register("A", ((self.A << 1) & 0xFF) | carry)
+        self.set_flag("N", False)
+        self.set_flag("H", False)
+        self.consume_cycles(4)
+
     def RRA(self):
         carry = self.get_flag("C")
         self.set_flag("C", self.A & 1)
         self.set_register("A", ((self.A >> 1) & 0xFF) | (carry << 7))
-
-    def DAA(self):
-        a = self.get_register("A")
-        c = self.get_flag("C")
-        h = self.get_flag("H")
-
-        if (a & 0x0F) > 9 or h:
-            a += 0x06
-        if (a & 0xF0) > 0x90 or c:
-            a += 0x60
-            c = True
-        else:
-            c = False
-
-        self.set_register("A", a)
-        self.set_flag("C", c)
-        self.set_flag("H", False)
         self.set_flag("N", False)
-        self.set_flag("Z", a == 0)
-        self.set_flag("P", False)
-        self.set_flag("S", False)
+        self.set_flag("H", False)
+        self.consume_cycles(4)
 
-    def CPL(self):
-        self.registers["A"] = ~self.registers["A"] & 0xFF
-        self.set_flag("N", 1)
-        self.set_flag("H", 1)
-
-    def SCF(self):
-        self.set_flag("C", True)
-
-    def CCF(self):
-        self.set_flag("C", ~self.get_flag("C"))
-        self.set_flag("N", 0)
-        self.set_flag("H", 0)
-
-    def HALT(self):
-        print("#TODO: implement this and interrupts")
+    def JR(self, D):
+        self.set_register("PC", self.get_register("PC") + D)
+        self.consume_cycles(12)
