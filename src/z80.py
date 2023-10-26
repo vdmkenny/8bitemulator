@@ -1157,3 +1157,7 @@ class Z80:
     def JR(self, D):
         self.set_register("PC", self.get_register("PC") + D)
         self.consume_cycles(12)
+
+     def HALT(self):
+        self.halted = True
+        self.consume_cycles(4)
